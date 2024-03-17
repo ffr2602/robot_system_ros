@@ -6,7 +6,7 @@ import math
 import numpy as np 
 
 from sensor_msgs.msg import JointState
-from geometry_msgs.msg import Twist, TransformStamped, Quaternion
+from geometry_msgs.msg import Twist, Quaternion, Point
 from nav_msgs.msg import Odometry
 from tf import transformations, TransformBroadcaster
 
@@ -35,7 +35,7 @@ class controller_omni():
         self.robot = robot(self.GEOMETRI_ROBOT, self.WHEEL_RADIUS)
 
         self.cmd_vel_subscriber = rospy.Subscriber('/cmd_vel', Twist, self.apply_velocity)
-        self.joints_publisher = rospy.Publisher('/joint_states', JointState, queue_size=1)
+        self.joints_publisher = rospy.Publisher('/joint_states', JointState, tcp_nodelay=True)
         self.odom_publisher = rospy.Publisher('/odom', Odometry, queue_size=1)
         self.odom_broadcaster = TransformBroadcaster()
 
@@ -103,26 +103,23 @@ class controller_omni():
         self.angular_z_position += delta_z
 
         tf_quat = transformations.quaternion_from_euler(0, 0, self.angular_z_position)
-        msg_quat = Quaternion(x=tf_quat[0], y=tf_quat[1], z=tf_quat[2], w=tf_quat[3])
+        rotation = Quaternion(x=tf_quat[0], y=tf_quat[1], z=tf_quat[2], w=tf_quat[3])
+        translation = Point(x=self.linear_x_position, y=self.linear_y_position, z=self.angular_z_position)
 
-        odom_transform = TransformStamped()
-        odom_transform.header.stamp = rospy.get_rostime()
-        odom_transform.header.frame_id = 'odom'
-        odom_transform.child_frame_id = 'base_link'
-        odom_transform.transform.translation.x = self.linear_x_position
-        odom_transform.transform.translation.y = self.linear_y_position
-        odom_transform.transform.translation.z = 0.0
-        odom_transform.transform.rotation = msg_quat
-        self.odom_broadcaster.sendTransformMessage(odom_transform)
+        self.odom_broadcaster.sendTransform(
+            time=rospy.get_rostime(),
+            parent='odom',
+            child='base_link',
+            translation= translation,
+            rotation= rotation
+        )
 
         odometry = Odometry()
         odometry.header.stamp = rospy.get_rostime()
         odometry.header.frame_id = "odom"
         odometry.child_frame_id = "base_link"
-        odometry.pose.pose.position.x = self.linear_x_position
-        odometry.pose.pose.position.y = self.linear_y_position
-        odometry.pose.pose.position.z = 0.0
-        odometry.pose.pose.orientation = msg_quat
+        odometry.pose.pose.position = translation
+        odometry.pose.pose.orientation = rotation
         odometry.twist.twist.linear.x  = linear_x_velocity
         odometry.twist.twist.linear.y  = linear_y_velocity
         odometry.twist.twist.angular.z = angular_z_velocity
