@@ -6,7 +6,7 @@ import math
 import numpy as np 
 
 from sensor_msgs.msg import JointState
-from geometry_msgs.msg import Twist, Quaternion, Point
+from geometry_msgs.msg import Twist, TransformStamped, Quaternion, Point
 from nav_msgs.msg import Odometry
 from tf import transformations, TransformBroadcaster
 
@@ -104,21 +104,24 @@ class controller_omni():
 
         tf_quat = transformations.quaternion_from_euler(0, 0, self.angular_z_position)
         rotation = Quaternion(x=tf_quat[0], y=tf_quat[1], z=tf_quat[2], w=tf_quat[3])
-        translation = Point(x=self.linear_x_position, y=self.linear_y_position, z=self.angular_z_position)
 
-        self.odom_broadcaster.sendTransform(
-            time=rospy.get_rostime(),
-            parent='odom',
-            child='base_link',
-            translation= translation,
-            rotation= rotation
-        )
+        transform = TransformStamped()
+        transform.header.stamp = rospy.get_rostime()
+        transform.header.frame_id = "odom"
+        transform.child_frame_id = "base_link"
+        transform.transform.translation.x = self.linear_x_position
+        transform.transform.translation.y = self.linear_y_position
+        transform.transform.translation.z = 0.0
+        transform.transform.rotation = rotation
+        self.odom_broadcaster.sendTransformMessage(transform)
 
         odometry = Odometry()
         odometry.header.stamp = rospy.get_rostime()
         odometry.header.frame_id = "odom"
         odometry.child_frame_id = "base_link"
-        odometry.pose.pose.position = translation
+        odometry.pose.pose.position.x = self.linear_x_position
+        odometry.pose.pose.position.y = self.linear_y_position
+        odometry.pose.pose.position.z = 0.0
         odometry.pose.pose.orientation = rotation
         odometry.twist.twist.linear.x  = linear_x_velocity
         odometry.twist.twist.linear.y  = linear_y_velocity
