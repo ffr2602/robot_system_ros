@@ -309,15 +309,15 @@
 
     <!-- WHEEL ROBOT -->
 
-    <xacro:wheel name="left_front"  x="${wheel_offset_x}"   y="${wheel_offset_y}"   com="left"  wheel="left" />
-    <xacro:wheel name="right_front" x="${wheel_offset_x}"   y="${-wheel_offset_y}"  com="right" wheel="right" />
-    <xacro:wheel name="left_rear"   x="${-wheel_offset_x}"  y="${wheel_offset_y}"   com="left"  wheel="right" />
-    <xacro:wheel name="right_rear"  x="${-wheel_offset_x}"  y="${-wheel_offset_y}"  com="right" wheel="left" />
+    <xacro:wheel name="front_left"  x="${wheel_offset_x}"   y="${wheel_offset_y}"   com="left"  wheel="left" />
+    <xacro:wheel name="front_right" x="${wheel_offset_x}"   y="${-wheel_offset_y}"  com="right" wheel="right" />
+    <xacro:wheel name="back_left"   x="${-wheel_offset_x}"  y="${wheel_offset_y}"   com="left"  wheel="right" />
+    <xacro:wheel name="back_right"  x="${-wheel_offset_x}"  y="${-wheel_offset_y}"  com="right" wheel="left" />
 
     <!-- LIDAR SENSOR -->
 
     <xacro:lidar name="front" x="${chassis_length/2 - 0.08}" y="${chassis_width/2 - 0.08}" z="${chassis_height_low + 0.01}"/>
-    <!-- <xacro:lidar name="back" x="-${chassis_length/2 - 0.08}" y="-${chassis_width/2 - 0.08}" z="${chassis_height_low + 0.01}"/> -->
+    <xacro:lidar name="back" x="-${chassis_length/2 - 0.08}" y="-${chassis_width/2 - 0.08}" z="${chassis_height_low + 0.01}"/>
 
     <!-- IMU SENSOR -->
 
