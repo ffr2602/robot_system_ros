@@ -14,7 +14,7 @@ from robot_system_ros.robot import robot
 
 class controller_omni():
     def __init__(self):
-        rospy.init_node('omni_controller')
+        rospy.init_node('omni_controller', anonymous=True)
         rospy.loginfo('start node')
 
         chassis_length  = 1.004
@@ -118,7 +118,7 @@ class controller_omni():
         odometry = Odometry()
         odometry.header.stamp = rospy.get_rostime()
         odometry.header.frame_id = "odom"
-        odometry.child_frame_id = "base_link"
+        odometry.child_frame_id = "base_footprint"
         odometry.pose.pose.position.x = self.linear_x_position
         odometry.pose.pose.position.y = self.linear_y_position
         odometry.pose.pose.position.z = 0.0
