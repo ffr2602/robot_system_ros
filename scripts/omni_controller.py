@@ -17,13 +17,17 @@ class controller_omni():
         rospy.init_node('omni_controller')
         rospy.loginfo('start node')
 
-        P = 0.5
-        L = 0.5
-        R = 0.05
+        chassis_length  = 1.004
+        chassis_width   = 0.484
+        wheel_thickness = 0.07
+        wheel_radius    = 0.05
+
+        wheel_offset_x = (chassis_length - (0.0795 * 2))/2
+        wheel_offset_y = (chassis_width + wheel_thickness)/2
 
         self.saved_time = time.time()
-        self.GEOMETRI_ROBOT = (P + L) / 2
-        self.WHEEL_RADIUS = R
+        self.GEOMETRI_ROBOT = wheel_offset_x + wheel_offset_y
+        self.WHEEL_RADIUS = wheel_radius
         self.CIRCLE_Length = 2 * self.WHEEL_RADIUS * math.pi
         self.RATIO_SPEED_WHEEL = (1 / (6000 * self.CIRCLE_Length)) / 0.817814436
 
@@ -31,8 +35,8 @@ class controller_omni():
         self.robot = robot(self.GEOMETRI_ROBOT, self.WHEEL_RADIUS)
 
         self.cmd_vel_subscriber = rospy.Subscriber('/cmd_vel', Twist, self.apply_velocity)
-        self.joints_publisher = rospy.Publisher('/joint_states', JointState, queue_size=10)
-        self.odom_publisher = rospy.Publisher('/odom', Odometry, queue_size=10)
+        self.joints_publisher = rospy.Publisher('/joint_states', JointState, queue_size=1)
+        self.odom_publisher = rospy.Publisher('/odom', Odometry, queue_size=1)
         self.odom_broadcaster = TransformBroadcaster()
 
         self.wheel_front_left_rotation  = 0.0
@@ -126,9 +130,9 @@ class controller_omni():
     
     def read_thread_function(self):
         while True:
-            twist_vel = self.robot.compute_velocity_robot_forward_kinematic(self.motor_vel)
-            # self.publish_wheels_state(self.robot.velocity_rad(self.motor_vel))
-            # self.publish_odom(twist_vel)
+            twist_vel = self.robot.compute_velocity_robot_forward_kinematic(self.robot.velocity_rad(self.motor_vel))
+            self.publish_wheels_state(self.robot.velocity_rad(self.motor_vel))
+            self.publish_odom(twist_vel)
 
 
 if __name__ == '__main__':
