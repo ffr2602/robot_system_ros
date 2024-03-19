@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-    <param name="robot_description" command="xacro $(find robot_system_ros)/description/robot.xacro"/>
+    <param name="robot_description" command="xacro $(find robot_system_ros)/description/robot_simulation.xacro"/>
     <arg name="rviz_config" default="$(find robot_system_ros)/rviz/robot_view.rviz"/>
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(find robot_system_ros)/world/map_maze.world"/>
@@ -13,8 +13,7 @@
  
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"/>
     <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rviz_config)"/>
-
-    <node pkg="robot_system_ros" type="omni_controller.py" name="controller" />
+    <node pkg="robot_system_ros" type="robot_simulation.py" name="controller" />
 
     <node pkg="gazebo_ros" type="spawn_model" name="spawn_model" args="-urdf -model robot -param robot_description" />
     <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter">

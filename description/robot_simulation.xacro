@@ -101,6 +101,14 @@
               <inertia ixx="0.000021370" ixy="0" ixz="0" iyy="0.000009966" iyz="0" izz="0.000021370" />
             </inertial>
           </link>
+          <gazebo reference="wheel_${name}_shaft">
+            <material>Gazebo/Black</material>
+          </gazebo>
+          <gazebo reference="wheel_${name}_link">
+            <material>Gazebo/Grey</material>
+            <mu1>0.0</mu1>
+            <mu2>0.0</mu2>
+          </gazebo>
     </xacro:macro>
     
     <xacro:macro name="lidar" params="name x y z">
@@ -137,6 +145,39 @@
                 <origin xyz="0 0 0" rpy="0 0 0" />
             </xacro:inertial_cylinder>
         </link>
+        <gazebo reference="lidar_${name}">
+            <material>Gazebo/Black</material>
+            <sensor name="laser_${name}" type="ray">
+                <pose> 0 0 0 0 0 0 </pose>
+                <visualize>false</visualize>
+                <always_on>true</always_on>
+                <update_rate>10</update_rate>
+                <ray>
+                    <scan>
+                        <horizontal>
+                            <samples>360</samples>
+                            <resolution>1.0</resolution>
+                            <min_angle>-${pi/2}</min_angle>
+                            <max_angle>${3*pi/4}</max_angle>
+                        </horizontal>
+                    </scan>
+                    <range>
+                        <min>0.1</min>
+                        <max>12</max>
+                        <resolution>0.01</resolution>
+                    </range>
+                    <noise>
+                        <type>gaussian</type>
+                        <mean>0.0</mean>
+                        <stddev>0.01</stddev>
+                    </noise>
+                </ray>
+                <plugin name="laser_controller_${name}" filename="libgazebo_ros_laser.so">
+                    <topicName>/lidar_${name}_scan</topicName>
+                    <frameName>lidar_${name}</frameName>
+                </plugin>
+            </sensor>
+        </gazebo>
     </xacro:macro>
 
     <material name="light_grey">
@@ -166,7 +207,10 @@
     <!-- BASE LINK -->
 
     <link name="base_link"></link>
-  
+    <gazebo reference="base_link">
+        <material>Gazebo/Orange</material>
+    </gazebo>
+
     <!-- BASE_FOOTPRINT LINK -->
 
     <joint name="base_footprint_joint" type="fixed">
@@ -175,6 +219,10 @@
         <origin xyz="0 0 0" rpy="0 0 0" />
     </joint>
     <link name="base_footprint"></link>
+    <gazebo reference="base_footprint">
+        <material>Gazebo/Orange</material>
+        <gravity>true</gravity>
+    </gazebo>
 
     <!-- CHASSIS LINK -->
 
@@ -201,6 +249,9 @@
             <origin xyz="${chassis_length/2} 0 ${chassis_height_low/2}" rpy="0 0 0" />
         </xacro:inertial_box>
     </link>
+    <gazebo reference="chassis_low">
+        <material>Gazebo/Orange</material>
+    </gazebo>
 
     <joint name="chassis_mid_joint" type="fixed">
         <parent link="base_link" />
@@ -225,6 +276,9 @@
             <origin xyz="${chassis_length/2} 0 ${chassis_height_mid/2}" rpy="0 0 0" />
         </xacro:inertial_box>
     </link>
+    <gazebo reference="chassis_mid">
+        <material>Gazebo/Orange</material>
+    </gazebo>
 
     <joint name="chassis_top_joint" type="fixed">
         <parent link="base_link" />
@@ -249,6 +303,9 @@
             <origin xyz="${chassis_length/2} 0 ${chassis_height_top/2}" rpy="0 0 0" />
         </xacro:inertial_box>
     </link>
+    <gazebo reference="chassis_top">
+        <material>Gazebo/Orange</material>
+    </gazebo>
 
     <!-- WHEEL ROBOT -->
 
@@ -270,5 +327,37 @@
         <origin xyz="0 0 0" rpy="0 0 0" />
     </joint>
     <link name="imu_link"></link>
-   
+    <gazebo reference="imu_link">
+        <gravity>true</gravity>
+        <sensor name="imu_sensor" type="imu">
+          <always_on>true</always_on>
+          <update_rate>100</update_rate>
+          <visualize>true</visualize>
+          <topic>__default_topic__</topic>
+          <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+            <topicName>imu</topicName>
+            <bodyName>imu_link</bodyName>
+            <updateRateHZ>10.0</updateRateHZ>
+            <gaussianNoise>0.0</gaussianNoise>
+            <xyzOffset>0 0 0</xyzOffset>
+            <rpyOffset>0 0 0</rpyOffset>
+            <frameName>imu_link</frameName>
+            <initialOrientationAsReference>false</initialOrientationAsReference>
+          </plugin>
+          <pose>0 0 0 0 0 0</pose>
+        </sensor>
+      </gazebo>
+
+      <!-- CONTROL ROBOT -->
+
+      <gazebo>
+        <plugin name="object_controller" filename="libgazebo_ros_planar_move.so">
+          <commandTopic>cmd_vel</commandTopic>
+          <odometryTopic>odom</odometryTopic>
+          <odometryFrame>odom</odometryFrame>
+          <odometryRate>20.0</odometryRate>
+          <robotBaseFrame>base_footprint</robotBaseFrame>
+        </plugin>
+      </gazebo>
+
 </robot>
