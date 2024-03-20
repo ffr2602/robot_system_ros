@@ -11,6 +11,7 @@ from nav_msgs.msg import Odometry
 from tf import transformations, TransformBroadcaster
 
 from robot_system_ros.robot import robot
+from robot_system_ros.can_setup import setup
 
 class controller_omni():
     def __init__(self):
@@ -33,6 +34,7 @@ class controller_omni():
 
         self.motor_vel = np.zeros(4).astype(int)
         self.robot = robot(self.GEOMETRI_ROBOT, self.WHEEL_RADIUS)
+        self.can_setup = setup()
 
         self.cmd_vel_subscriber = rospy.Subscriber('/cmd_vel', Twist, self.apply_velocity)
         self.joints_publisher = rospy.Publisher('/joint_states', JointState, tcp_nodelay=True)
@@ -130,6 +132,7 @@ class controller_omni():
     
     def read_thread_function(self):
         while True:
+            self.can_setup.send_data_can(self.motor_vel)
             twist_vel = self.robot.compute_velocity_robot_forward_kinematic(self.robot.velocity_rad(self.motor_vel))
             self.publish_wheels_state(self.robot.velocity_rad(self.motor_vel))
             self.publish_odom(twist_vel)
