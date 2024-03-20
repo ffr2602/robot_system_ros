@@ -35,7 +35,7 @@ class controller_omni():
         self.robot = robot(self.GEOMETRI_ROBOT, self.WHEEL_RADIUS)
 
         self.cmd_vel_subscriber = rospy.Subscriber('/cmd_vel', Twist, self.apply_velocity)
-        self.joints_publisher = rospy.Publisher('/joint_states', JointState, tcp_nodelay=True, queue_size=0)
+        self.joints_publisher = rospy.Publisher('/joint_states', JointState, tcp_nodelay=True)
         self.odom_publisher = rospy.Publisher('/odom', Odometry, queue_size=1)
         self.odom_broadcaster = TransformBroadcaster()
 

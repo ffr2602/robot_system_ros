@@ -33,7 +33,7 @@ class controller_omni():
         self.robot = robot(self.GEOMETRI_ROBOT, self.WHEEL_RADIUS)
 
         self.cmd_vel_subscriber = rospy.Subscriber('/cmd_vel', Twist, self.apply_velocity)
-        self.joints_publisher = rospy.Publisher('/joint_states', JointState, tcp_nodelay=True, queue_size=0)
+        self.joints_publisher = rospy.Publisher('/joint_states', JointState, tcp_nodelay=True)
 
         self.wheel_front_left_rotation  = 0.0
         self.wheel_front_right_rotation = 0.0
