@@ -63,7 +63,7 @@ class controller_omni():
     def apply_velocity(self, msg):
         input = [msg.linear.x, msg.linear.y, msg.angular.z]
         self.motor_vel = self.robot.compute_velocity_robot_inverse_kinematic(input)
-        print(self.motor_vel)
+        # print(self.motor_vel)
     
     def get_rotation_in_rad(self, wheel_rotation):
         return wheel_rotation % (2 * math.pi) - math.pi

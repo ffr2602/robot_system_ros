@@ -35,6 +35,8 @@ class setup():
                     c = msg_recv.data[msg_recv.dlc - 4] * 0x10000
                     d = msg_recv.data[msg_recv.dlc - 3] * 0x1000000
                     self.motor_velocity_position[i] = a + b + c + d
+        
+        print(self.motor_velocity_position)
 
     def read_position_data_can(self):
         if self.can_open == True:
