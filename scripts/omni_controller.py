@@ -15,7 +15,7 @@ from robot_system_ros.can_setup import setup
 
 class controller_omni():
     def __init__(self):
-        rospy.init_node('omni_controller', anonymous=True)
+        rospy.init_node('omni_controller', anonymous=True, disable_signals=True)
         rospy.loginfo('start node')
 
         chassis_length  = 1.004
@@ -37,7 +37,7 @@ class controller_omni():
         self.can_setup = setup()
 
         self.cmd_vel_subscriber = rospy.Subscriber('/cmd_vel', Twist, self.apply_velocity)
-        self.joints_publisher = rospy.Publisher('/joint_states', JointState, tcp_nodelay=True)
+        self.joints_publisher = rospy.Publisher('/joint_states', JointState, tcp_nodelay=True, queue_size=1)
         self.odom_publisher = rospy.Publisher('/odom', Odometry, queue_size=1)
         self.odom_broadcaster = TransformBroadcaster()
 
@@ -63,7 +63,7 @@ class controller_omni():
     def apply_velocity(self, msg):
         input = [msg.linear.x, msg.linear.y, msg.angular.z]
         self.motor_vel = self.robot.compute_velocity_robot_inverse_kinematic(input)
-        # print(self.motor_vel)
+        print(self.motor_vel)
     
     def get_rotation_in_rad(self, wheel_rotation):
         return wheel_rotation % (2 * math.pi) - math.pi
@@ -143,4 +143,6 @@ if __name__ == '__main__':
         controller_omni()
         rospy.spin()
     except rospy.ROSException:
+        pass
+    except KeyboardInterrupt:
         pass
